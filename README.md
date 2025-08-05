@@ -1,1 +1,1 @@
-# project_ecommerce
+# BeWear E-commerce project
