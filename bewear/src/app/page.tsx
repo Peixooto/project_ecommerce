@@ -1,9 +1,12 @@
-import Authentication from "./auth/page";
+"use client"
+import { Header } from "@/components/ui/common/header";
 
-export default function Home() {
+const Home =() =>{
   return (
-  <>
-      <Authentication />
-  </>
+    <>
+      <Header/>
+    </>
   );
 }
+
+export default Home;
