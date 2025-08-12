@@ -1,13 +1,17 @@
 "use client";
 
 import {zodResolver} from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import {useForm} from "react-hook-form"
+import { toast } from "sonner";
 import z from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter,CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { auth } from "@/lib/auth";
+import { authClient } from "@/lib/auth.client";
 
 const formSchema = z.object({
     email: z.email("E-mail inválido."),
@@ -24,6 +28,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const SignUpForm =()=>{
+    const router = useRouter();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues:{
@@ -34,8 +39,30 @@ const SignUpForm =()=>{
         },
     });
 
-    function onSubmit(value: FormValues){
-        console.log("Form valido",value)  
+    async function onSubmit(value: FormValues){
+       try{
+        await authClient.signUp.email({
+          email:value.email,
+          password:value.password,
+          name:value.name,
+          fetchOptions:{
+            onSuccess:()=>{
+                router.push("/");
+            },
+            onError:(error)=>{
+                if (error.error.code== "USER_ALREADY_EXISTS"){
+                  toast.error("E-mail ou senha inválidos");
+                  form.setError("email",{
+                    message:"E-mail já cadastrado.",
+                });
+              }
+            //   toast.error(error.error.message);
+            }
+          }
+        });
+       } catch (error){
+        console.log(error)
+       }
     }
 
     return (
